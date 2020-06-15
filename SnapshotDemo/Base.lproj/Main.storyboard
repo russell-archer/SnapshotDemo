@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="15D21" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="SnapshotDemo" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" showsUserLocation="YES" translatesAutoresizingMaskIntoConstraints="NO" id="g75-VA-PCM">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="561"/>
+                            </mapView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aIw-f7-DTu">
+                                <rect key="frame" x="0.0" y="569" width="600" height="23"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="23" id="gcx-5R-R8F"/>
+                                </constraints>
+                                <state key="normal" title="Take Snapshot"/>
+                                <connections>
+                                    <action selector="takeSnapshotClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="LoP-nW-DVT"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="aIw-f7-DTu" firstAttribute="top" secondItem="g75-VA-PCM" secondAttribute="bottom" constant="8" symbolic="YES" id="Dac-AK-dxe"/>
+                            <constraint firstItem="g75-VA-PCM" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="DwA-a6-RiM"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="aIw-f7-DTu" secondAttribute="bottom" constant="8" symbolic="YES" id="E1T-Jy-LpR"/>
+                            <constraint firstAttribute="trailing" secondItem="aIw-f7-DTu" secondAttribute="trailing" id="XRh-ef-c35"/>
+                            <constraint firstItem="aIw-f7-DTu" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ZP3-Ia-ZAK"/>
+                            <constraint firstItem="aIw-f7-DTu" firstAttribute="leading" secondItem="g75-VA-PCM" secondAttribute="leading" id="axc-bx-9eF"/>
+                            <constraint firstItem="aIw-f7-DTu" firstAttribute="trailing" secondItem="g75-VA-PCM" secondAttribute="trailing" id="z4Y-kY-Can"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="map" destination="g75-VA-PCM" id="QLs-yR-TeW"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="577" y="495"/>
+        </scene>
+    </scenes>
+</document>
