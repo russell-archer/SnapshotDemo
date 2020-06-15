@@ -11,7 +11,7 @@ import CoreLocation
 import MapKit
 import MessageUI
 
-class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate, MFMessageComposeViewControllerDelegate {
+class ViewController: UIViewController {
     
     @IBOutlet weak var map: MKMapView!
 
@@ -27,13 +27,11 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             print("We are already authorized to use location services - initializing...")
             initLocationServices()
         }
-        
-        print("Documents directory: \(getCachesDirectory())")
     }
 
     func initLocationServices() {
         let initialLoc = CLLocationCoordinate2D(latitude: 52, longitude: 0)
-        let initialSpan = MKCoordinateSpanMake(0.01, 0.01)
+        let initialSpan = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
         
         map.showsUserLocation = true
         map.delegate = self
@@ -64,35 +62,6 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         return authStatus
     }
     
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        // This method is called when the location manager's authorization status changes
-        // (e.g. when the user gives permission to use location services)
-        
-        if status == .authorizedWhenInUse {
-            print("We are now authorized to use location services - initializing...")
-            initLocationServices()
-        }
-    }
-    
-    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
-        map.setCenter((userLocation.location?.coordinate)!, animated: true)
-    }
-    
-    func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
-        switch result.rawValue {
-            case MessageComposeResult.cancelled.rawValue:
-                print("SMS cancelled")
-            case MessageComposeResult.sent.rawValue:
-                print("SMS sent OK!")
-            case MessageComposeResult.failed.rawValue:
-                print("SMS failure")
-            default:
-                print("Unknown SMS error")
-        }
-        
-        controller.dismiss(animated: true, completion: nil)
-    }
-    
     @IBAction func takeSnapshotClicked(_ sender: AnyObject) {
         /*
         
@@ -105,7 +74,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             let options = MKMapSnapshotOptions()
             options.region = map.region
             options.size = map.frame.size
-            options.scale = UIScreen.mainScreen().scale  // mainScreen() = object representing device’s screen
+            options.scale = UIScreen.main.scale
             
             let s = map.snapshotViewAfterScreenUpdates(true)
             let snapshotter = MKMapSnapshotter(options: options)
@@ -121,58 +90,36 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         */
         
         // The following code can be adapted to capture the contents of any UIView-derived object
-        UIGraphicsBeginImageContextWithOptions(map.bounds.size, true, UIScreen.main().scale)
+        UIGraphicsBeginImageContextWithOptions(map.bounds.size, true, UIScreen.main.scale)
         map.drawHierarchy(in: map.bounds, afterScreenUpdates: true)
         let img = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
         // Save the img
         if saveImage(img!, filename: "mapSnapshot.png") {
-            print("File saved OK!")
+            print("Image saved to \(getCachesDirectory())/mapSnapshot.png")
         } else {
             print("Error saving file")
         }
-        
-        // Send an SMS
-        // Are SMS services available?
-        if !MFMessageComposeViewController.canSendText() {
-            let alert = UIAlertController(title: "SMS", message: "SMS services not available", preferredStyle: UIAlertControllerStyle.alert)
-            alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
-            present(alert, animated: true, completion: nil)
-            return
-        }
-        
-        let sms = MFMessageComposeViewController()
-        sms.messageComposeDelegate = self
-        sms.body = "Hi Dad, can you come and get me?!"
-        sms.recipients = ["0208 977 3603"]
-        
-        if MFMessageComposeViewController.canSendAttachments() {
-            if let snapshotData = getSnapshotData("mapSnapshot.png") {
-                sms.addAttachmentData(snapshotData, typeIdentifier: "image/png", filename: "mapSnapshot.png")
-            }
-        }
-        
-        self.present(sms, animated: true, completion: nil)
     }
     
     func saveImage(_ img: UIImage, filename: String) -> Bool {
         var path = getCachesDirectory() as NSString
-        path = path.appendingPathComponent(filename)
+        path = path.appendingPathComponent(filename) as NSString
 
-        guard let file = UIImagePNGRepresentation(img) else {
+        guard let file = img.pngData() else {
             print("Unable to create PNG representation of UIImage")
             return false
         }
         
-        return ((try? file.write(to: URL(fileURLWithPath: path as String), options: [.dataWritingAtomic])) != nil)
+        return ((try? file.write(to: URL(fileURLWithPath: path as String), options: [.atomicWrite])) != nil)
     }
     
     func loadImage(_ filename: String) -> UIImage? {
         var path = getCachesDirectory() as NSString
-        path = path.appendingPathComponent(filename)
+        path = path.appendingPathComponent(filename) as NSString
         
-        if !FileManager.default().fileExists(atPath: path as String) {
+        if !FileManager.default.fileExists(atPath: path as String) {
             return nil
         }
         
@@ -187,8 +134,26 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func getSnapshotData(_ filename: String) -> Data? {
         var path = getCachesDirectory() as NSString
-        path = path.appendingPathComponent(filename)
+        path = path.appendingPathComponent(filename) as NSString
         
         return (try? Data(contentsOf: URL(fileURLWithPath: path as String)))
+    }
+}
+
+extension ViewController: MKMapViewDelegate {
+    func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+        map.setCenter((userLocation.location?.coordinate)!, animated: true)
+    }
+}
+
+extension ViewController: CLLocationManagerDelegate {
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        // This method is called when the location manager's authorization status changes
+        // (e.g. when the user gives permission to use location services)
+        
+        if status == .authorizedWhenInUse {
+            print("We are now authorized to use location services - initializing...")
+            initLocationServices()
+        }
     }
 }
